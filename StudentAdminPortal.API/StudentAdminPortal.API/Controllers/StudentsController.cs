@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using StudentAdminPortal.API.DataModels;
 using StudentAdminPortal.API.Repositories;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -27,6 +28,19 @@ namespace StudentAdminPortal.API.Controllers
 
             
             return Ok(mapper.Map<List<Student>>(students));
+        }
+
+        [HttpGet]
+        [Route("[controller]/{studentId:guid}")]
+        public async Task<IActionResult> GetStudentAsync([FromRoute] Guid studentId)
+        {
+            var student = await studentRepository.GetStudentAsync(studentId);
+
+            if (student == null)
+            {
+                return NotFound();
+            }
+            return Ok(mapper.Map<Student>(student));
         }
     }
 }
