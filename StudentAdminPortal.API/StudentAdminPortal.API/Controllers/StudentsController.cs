@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using StudentAdminPortal.API.DataModels;
+using StudentAdminPortal.API.DomainModels;
 using StudentAdminPortal.API.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Student = StudentAdminPortal.API.DataModels.Student;
 
 namespace StudentAdminPortal.API.Controllers
 {
@@ -26,7 +28,7 @@ namespace StudentAdminPortal.API.Controllers
         {
             var students = await studentRepository.GetStudentsAsync();
 
-            
+
             return Ok(mapper.Map<List<Student>>(students));
         }
 
@@ -34,13 +36,33 @@ namespace StudentAdminPortal.API.Controllers
         [Route("[controller]/{studentId:guid}")]
         public async Task<IActionResult> GetStudentAsync([FromRoute] Guid studentId)
         {
+            // Fetch Student Details
             var student = await studentRepository.GetStudentAsync(studentId);
-
+            // Return Student
             if (student == null)
             {
                 return NotFound();
             }
             return Ok(mapper.Map<Student>(student));
         }
+        [HttpPut]
+        [Route("[controller]/{studentId:guid}")]
+        public async Task<IActionResult> UpdateStudentAsync([FromRoute] Guid studentId, [FromBody] UpdateStudentRequest request)
+        {
+            if (await studentRepository.Exists(studentId))
+            {
+                var updatedStudent = await studentRepository.UpdateStudent(studentId, mapper.Map<DataModels.Student>(request));
+
+                if (updatedStudent != null)
+                {
+                    return Ok(mapper.Map<Student>(updatedStudent));
+                }
+            }
+
+
+            return NotFound();
+
+        }
+
     }
 }
